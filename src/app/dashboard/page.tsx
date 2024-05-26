@@ -1,58 +1,33 @@
-"use client";
-
-import { useEffect, useState } from "react";
+'use client'
+import { useContext } from "react";
+import { PriceContext } from "../components/priceprovider";
 import Searchbar from "../components/searchbar";
-
-interface CryptoPrice {
-  [key: string]: number;
-}
+import PriceItem from "../components/priceitem";
 
 function Dashboard() {
-  const [cryptoPrices, setCryptoPrices] = useState<CryptoPrice>({});
-
-  useEffect(() => {
-    fetchdata();
-  }, []);
-
-  function fetchdata() {
-    const ws = new WebSocket(
-      "wss://ws.coincap.io/prices?assets=bitcoin,ethereum,tether,ripple,cardano,dogecoin,solana,polkadot,litecoin,avalanche,polygon,chainlink,stellar,cosmos,filecoin,tron,monero,vechain,tezos,aave,algorand,flow,theta,bitcoincash,hedera,quant",
-    );
-    ws.onmessage = (event) => {
-      const message = JSON.parse(event.data);
-      setCryptoPrices((prevPrices) => ({
-        ...prevPrices,
-        ...message,
-      }));
-    };
-  }
+  const prices = useContext(PriceContext)
 
   return (
-    <div className="w-full max-w-5xl font-mono text-sm">
-      <Searchbar cryptoPrices={cryptoPrices} />
-      <table className="w-full border-collapse border border-slate-500">
-        <thead className="bg-slate-700">
-          <tr>
-            <th scope="col" className="p-4 border border-slate-600">
-              Currency
-            </th>
-            <th scope="col" className="border border-slate-600">
-              Price
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {Object.entries(cryptoPrices).map(([key, value]) => (
-            <tr key={key}>
-              <td className="text-center border border-slate-700">{key}</td>
-              <td className="py-3 text-center border border-slate-700">
-                {value}
-              </td>
+      <div className="w-full max-w-5xl font-mono text-sm">
+        <Searchbar />
+        <table className="w-full border-collapse border border-slate-500">
+          <thead className="bg-slate-700">
+            <tr>
+              <th scope="col" className="p-4 border border-slate-600">
+                Currency
+              </th>
+              <th scope="col" className="border border-slate-600">
+                Price
+              </th>
             </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+          </thead>
+          <tbody>
+            {Object.entries(prices).map(([currency, value]) => (
+              <PriceItem key={currency} currency={currency} value={parseFloat(value)} />
+            ))}
+          </tbody>
+        </table>
+      </div>
   );
 }
 

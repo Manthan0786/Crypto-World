@@ -1,59 +1,71 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import Searchbar from "../components/searchbar";
+import { ReactHTMLElement, useState, useEffect, useContext } from "react";
+import { PriceContext } from "./priceprovider";
 
-interface CryptoPrice {
-  [key: string]: number;
-}
+export default function Searchbar() {
+  const prices = useContext(PriceContext);
+  const [searchInput, setSearchInput] = useState<string>("");
+  const [results, setResults] = useState<[string, number][]>([]);
+  const [showres, setShowRes] = useState(false);
 
-function Dashboard() {
-  const [cryptoPrices, setCryptoPrices] = useState<CryptoPrice>({});
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchInput(e.currentTarget.value);
+  };
 
-  useEffect(() => {
-    fetchdata();
-  }, []);
-
-  function fetchdata() {
-    const ws = new WebSocket(
-      "wss://ws.coincap.io/prices?assets=bitcoin,ethereum,tether,ripple,cardano,dogecoin,solana,polkadot,litecoin,avalanche,polygon,chainlink,stellar,cosmos,filecoin,tron,monero,vechain,tezos,aave,algorand,flow,theta,bitcoincash,hedera,quant",
-    );
-    ws.onmessage = (event) => {
-      const message = JSON.parse(event.data);
-      setCryptoPrices((prevPrices) => ({
-        ...prevPrices,
-        ...message,
-      }));
-    };
+  function fetchsearch() {
+    if (searchInput.trim() === "") {
+      setResults([]);
+      setShowRes(false);
+      return;
+    }
+    if (prices) {
+      const res = Object.entries(prices).filter(([k]) =>
+        k.startsWith(searchInput),
+      );
+      setResults(res);
+      setShowRes(true);
+    }
   }
 
+  useEffect(() => {
+    let timer: ReturnType<typeof setTimeout>;
+    function debounce(callback: () => void, delay: number) {
+      clearTimeout(timer);
+      timer = setTimeout(callback, delay);
+    }
+    debounce(() => fetchsearch(), 1000);
+  }, [searchInput]);
+
+  useEffect(() => {
+    if (setSearchInput == null) {
+      setResults([]);
+    }
+  });
+
   return (
-    <div className="w-full max-w-5xl font-mono text-sm">
-      <Searchbar cryptoPrices={cryptoPrices} />
-      <table className="w-full border-collapse border border-slate-500">
-        <thead className="bg-slate-700">
-          <tr>
-            <th scope="col" className="p-4 border border-slate-600">
-              Currency
-            </th>
-            <th scope="col" className="border border-slate-600">
-              Price
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {Object.entries(cryptoPrices).map(([key, value]) => (
-            <tr key={key}>
-              <td className="text-center border border-slate-700">{key}</td>
-              <td className="py-3 text-center border border-slate-700">
-                {value}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+    <>
+      <div className="mb-2 relative ">
+        <input
+          type="search"
+          placeholder="search..."
+          value={searchInput}
+          onChange={handleChange}
+          className="p-2 rounded text-black focus:outline-none border shadow-sm border-slate-300 focus:ring-2 focus:ring-sky-500"
+        />
+        {showres && (
+          <div className="bg-slate-100 absolute text-black rounded-b overflow-hidden">
+            {results.map(([key, val]) => (
+              <p
+                key={key}
+                className="p-1 w-[11.5rem] border-b-2 hover:bg-slate-400"
+              >
+                {key} : {val}
+              </p>
+            ))}
+          </div>
+        )}
+      </div>
+    </>
   );
 }
-
-export default Dashboard;
