@@ -1,6 +1,6 @@
 "use client";
 
-import { ReactHTMLElement, useState, useEffect, useContext } from "react";
+import { useState, useEffect, useContext } from "react";
 import { PriceContext } from "./priceprovider";
 
 export default function Searchbar() {

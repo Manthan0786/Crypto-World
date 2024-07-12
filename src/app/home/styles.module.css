@@ -1,0 +1,14 @@
+.title {
+  width: 100%;
+  font-size: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.title h1 {
+    text-shadow: 2px 11px 9px rgba(0, 0, 0, 0.5);
+    text-align: center;
+}
+
+

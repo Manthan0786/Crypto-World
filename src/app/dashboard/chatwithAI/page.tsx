@@ -1,12 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 function ChatWithAI() {
   const [text, setText] = useState("");
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     setText(e.currentTarget.value);
   };
+
+  useEffect(()=> {
+    console.log('Rendering ChatAI')
+  }, [])
 
   return (
     <>
